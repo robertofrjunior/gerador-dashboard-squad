@@ -1,6 +1,6 @@
 """Serviços de integração ao Jira (fachada)."""
 from typing import Optional
-from credcesta import jira_client as _client
+from jiraproject import jira_client as _client
 from jiraproject.utils.jira_fields import sprint_fields, historico_fields
 from jiraproject.utils.jql import build_historico_jql, build_validate_project_jql
 from jiraproject.utils.jql import build_sprint_jql_variants

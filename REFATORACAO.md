@@ -15,7 +15,7 @@ Refatorar a aplicação Streamlit para análise de sprints do Jira, focando em m
   - [x] `jiraproject/services/jira.py` (fachada de serviços)
   - [x] `jiraproject/utils/jql.py` (builders de JQL)
   - [x] `jiraproject/utils/jira_fields.py` (listas de fields padronizadas)
-  - [x] `credcesta/jira_client.py`: função genérica `executar_jql` e uso dos builders em caminhos críticos
+  - [x] `jiraproject/jira_client.py`: função genérica `executar_jql` e uso dos builders em caminhos críticos
 - [x] Padronização de logs
   - [x] `jiraproject/utils/log.py` com `info/ok/warn/error` e substituição de `print`
 - [x] Encapsulamento de UI
@@ -39,7 +39,7 @@ Refatorar a aplicação Streamlit para análise de sprints do Jira, focando em m
   - [x] `requirements.txt` atualizado (incl. `pytest-mock`, `requests-mock`)
 - [x] Ajustes gerais
   - [x] Correções de `IndentationError` e `TypeError`
-  - [x] Troca de namespace “credcesta” para “jiraproject” conforme combinado
+  - [x] Troca de namespace “jiraproject” para “jiraproject” conforme combinado
   - [x] `README_INTERFACE.md` com instruções e arquitetura
 
 ## Pendências e Próximos Passos

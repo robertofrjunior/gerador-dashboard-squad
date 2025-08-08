@@ -1,6 +1,6 @@
 import pytest
 import requests_mock
-from credcesta import sprint_service
+from jiraproject import sprint_service
 
 @pytest.fixture
 def mock_jira_issue():

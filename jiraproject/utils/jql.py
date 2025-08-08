@@ -31,7 +31,7 @@ def build_historico_jql(projeto_key: str, data_inicio: str, data_fim: str) -> st
     )
 
 
-def build_sprint_jql_variants(projeto: str, sprint_id: int, credcesta_special: bool = False) -> list[str]:
+def build_sprint_jql_variants(projeto: str, sprint_id: int, jiraproject_special: bool = False) -> list[str]:
     """Retorna variantes de JQL para buscar issues de uma sprint.
 
     Mantém as mesmas opções usadas historicamente no cliente para compatibilidade.
@@ -41,7 +41,7 @@ def build_sprint_jql_variants(projeto: str, sprint_id: int, credcesta_special: b
     else:
         proj = f'project = {projeto}'
 
-    if credcesta_special or 'credcesta' in (projeto or '').lower():
+    if jiraproject_special or 'jiraproject' in (projeto or '').lower():
         return [
             f'{proj} AND cf[10020] = {sprint_id}',
             f'{proj} AND "cf[10020]" = {sprint_id}',

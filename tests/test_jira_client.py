@@ -1,6 +1,6 @@
 import pytest
 import requests_mock
-from credcesta import jira_client, settings
+from jiraproject import jira_client, settings
 
 def test_buscar_issue(requests_mock):
     """Testa a busca de um issue específico."""

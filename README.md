@@ -22,7 +22,7 @@ Este projeto fornece uma ferramenta de linha de comando para analisar sprints do
 Execute a análise através da linha de comando, fornecendo o nome do projeto e o ID da sprint.
 
 ```bash
-python -m credcesta.cli analisar --projeto "Meu Projeto" --sprint 1234
+python -m jiraproject.cli analisar --projeto "Meu Projeto" --sprint 1234
 ```
 
 Ou, se instalado via pacote:
@@ -69,7 +69,7 @@ Se você não precisa modificar o código, a forma mais fácil de instalar é us
 2.  **Instale o arquivo Wheel gerado:**
     O comando acima criará um arquivo no diretório `dist/`. Instale-o com:
     ```bash
-    pip install dist/credcesta_sprint_analyzer-0.1.0-py3-none-any.whl
+    pip install dist/jiraproject_sprint_analyzer-0.1.0-py3-none-any.whl
     ```
 
 3.  **Configure as credenciais** criando um arquivo `.env` (veja a seção de configuração acima).
@@ -82,10 +82,10 @@ Se você não precisa modificar o código, a forma mais fácil de instalar é us
 
 ## Checklist Concluído
 
-- [x] Estrutura do projeto modularizada (`credcesta/`)
+- [x] Estrutura do projeto modularizada (`jiraproject/`)
 - [x] Ambiente virtual criado e dependências instaladas (`requirements.txt`)
 - [x] Arquivo `.env` configurado com credenciais do Jira
-- [x] CLI (`python -m credcesta`) funcionando e gerando CSV + gráficos
+- [x] CLI (`python -m jiraproject`) funcionando e gerando CSV + gráficos
 - [x] Notebook legado movido para `notebooks/` (somente referência)
 - [x] README documentado com instalação e uso
 - [x] **Correções robustas aplicadas:**

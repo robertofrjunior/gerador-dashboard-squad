@@ -201,7 +201,7 @@ streamlit run interface_web.py --server.headless true
 - `jiraproject/utils/jira_fields.py`: listas de campos padronizados para JQL.
   - `default_fields()`, `sprint_fields()`, `historico_fields()`.
 - `jiraproject/utils_*`: utilitários (datas, normalização, Arrow, constantes).
-- `credcesta/jira_client.py`: cliente HTTP baixo nível (REST Jira).
+- `jiraproject/jira_client.py`: cliente HTTP baixo nível (REST Jira).
   - Expõe `executar_jql(jql, ...)` usado pela fachada.
 
 Fluxo típico (Histórico):

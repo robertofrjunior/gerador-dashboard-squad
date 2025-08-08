@@ -15,7 +15,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Importar módulos do projeto
-from credcesta import sprint_service, charts, settings
+from jiraproject import sprint_service, charts, settings
 from jiraproject.utils_constants import TIPOS_AGEIS_CANON, STATUS_CONCLUIDO, STORY_POINTS_PADRAO
 from jiraproject.utils_normalize import normalize, canonical_type
 from jiraproject.utils_arrow import to_arrow_safe_numeric, make_display_copy
@@ -64,7 +64,7 @@ def resolver_nome_projeto(_projeto_input):
         variações.extend(['SMD', '[DIGITAL] Sites / Marketing', 'smd'])
     elif input_lower in ['vac', 'vacinas']:
         variações.extend(['VAC', '[DIGITAL] Vacinas', 'vac']) 
-    elif 'credcesta' in input_lower:
+    elif 'jiraproject' in input_lower:
         variações.extend(['[DIGITAL] CredCesta CORE', 'CredCesta', 'CREDCESTA'])
     elif input_lower in ['pv', 'portal vendedor']:
         variações.extend(['PV', '[DIGITAL] Portal do Vendedor', 'pv'])

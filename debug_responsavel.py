@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Script de debug para encontrar o campo responsável correto."""
 
-from credcesta import jira_client
+from jiraproject import jira_client
 import json
 
 def analisar_issue(issue_key):

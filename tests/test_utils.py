@@ -42,10 +42,10 @@ def test_tipos_ageis_const():
     assert 'Spike' in TIPOS_AGEIS_CANON
 
 """
-Testes para o módulo credcesta.utils
+Testes para o módulo jiraproject.utils
 """
 import pytest
-from credcesta.utils import sanitize_filename
+from jiraproject.utils import sanitize_filename
 
 
 class TestSanitizeFilename:

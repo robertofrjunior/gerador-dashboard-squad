@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 from pathlib import Path
 from typer.testing import CliRunner
-from credcesta.cli import app
+from jiraproject.cli import app
 
 runner = CliRunner()
 
@@ -10,13 +10,13 @@ def test_analisar_cli_com_dados(mocker):
     """Testa o comando 'analisar' da CLI quando dados são retornados."""
     # Mock para retornar um DataFrame não vazio
     mock_df = pd.DataFrame({'Chave': ['PROJ-1']})
-    mocker.patch("credcesta.sprint_service.analisar_sprint", return_value=mock_df)
+    mocker.patch("jiraproject.sprint_service.analisar_sprint", return_value=mock_df)
     
     # Mock para as funções de charts para evitar que gráficos sejam exibidos
-    mocker.patch("credcesta.charts.mostrar_distribuicao_por_tipo")
-    mocker.patch("credcesta.charts.mostrar_story_points_ageis")
-    mocker.patch("credcesta.charts.mostrar_distribuicao_responsaveis")
-    mocker.patch("credcesta.charts.mostrar_tempo_conclusao_story_points")
+    mocker.patch("jiraproject.charts.mostrar_distribuicao_por_tipo")
+    mocker.patch("jiraproject.charts.mostrar_story_points_ageis")
+    mocker.patch("jiraproject.charts.mostrar_distribuicao_responsaveis")
+    mocker.patch("jiraproject.charts.mostrar_tempo_conclusao_story_points")
     
     result = runner.invoke(app, ["--projeto", "TEST", "--sprint", "1"])
     assert result.exit_code == 0
@@ -25,7 +25,7 @@ def test_analisar_cli_com_dados(mocker):
 def test_analisar_cli_sem_dados(mocker):
     """Testa o comando 'analisar' da CLI quando nenhum dado é retornado."""
     # Mock para retornar um DataFrame vazio
-    mocker.patch("credcesta.sprint_service.analisar_sprint", return_value=pd.DataFrame())
+    mocker.patch("jiraproject.sprint_service.analisar_sprint", return_value=pd.DataFrame())
     
     result = runner.invoke(app, ["--projeto", "TEST", "--sprint", "1"])
     assert result.exit_code == 0
@@ -48,13 +48,13 @@ def test_analisar_cli_caracteres_especiais(mocker, tmp_path):
             'Responsável': ['Test User'],
             'Story Points': [3]
         })
-        mocker.patch("credcesta.sprint_service.analisar_sprint", return_value=mock_df)
+        mocker.patch("jiraproject.sprint_service.analisar_sprint", return_value=mock_df)
         
         # Mock para as funções de charts para evitar que gráficos sejam exibidos
-        mocker.patch("credcesta.charts.mostrar_distribuicao_por_tipo")
-        mocker.patch("credcesta.charts.mostrar_story_points_ageis")
-        mocker.patch("credcesta.charts.mostrar_distribuicao_responsaveis")
-        mocker.patch("credcesta.charts.mostrar_tempo_conclusao_story_points")
+        mocker.patch("jiraproject.charts.mostrar_distribuicao_por_tipo")
+        mocker.patch("jiraproject.charts.mostrar_story_points_ageis")
+        mocker.patch("jiraproject.charts.mostrar_distribuicao_responsaveis")
+        mocker.patch("jiraproject.charts.mostrar_tempo_conclusao_story_points")
         
         # Testa com nome de projeto que contém caracteres especiais
         result = runner.invoke(app, ["--projeto", "[DIGITAL] Sites / Marketing", "--sprint", "4450"])
