@@ -2,9 +2,6 @@
 
 # Reexport utilidades para compatibilidade com testes antigos
 from .utils import log  # noqa: F401
-from . import settings  # noqa: F401
-from . import jira_client  # noqa: F401
-from . import sprint_service  # noqa: F401
 try:
     # mover util de compatibilidade
     from .credcesta.utils import sanitize_filename  # type: ignore
