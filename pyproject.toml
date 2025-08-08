@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jiraproject-sprint-analyzer"
+version = "0.1.0"
+authors = [
+  { name="Seu Nome", email="seu.email@example.com" },
+]
+description = "Ferramenta para analisar métricas de sprints do Jira."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests",
+    "pandas",
+    "matplotlib",
+    "python-dotenv",
+    "typer",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-mock",
+    "requests-mock",
+    "flake8",
+    "black",
+]
+
+[project.scripts]
+sprint-analyzer = "jiraproject.cli:app"
+
+[tool.setuptools]
+packages = ["jiraproject"] 
