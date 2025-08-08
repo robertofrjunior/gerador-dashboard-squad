@@ -3,6 +3,7 @@
 from typing import Dict, List, Any
 import plotly.express as px
 import streamlit as st
+import pandas as pd
 
 
 def tipo_icon(tipo: str) -> str:
@@ -165,4 +166,18 @@ def apply_chart_layout(
     if yaxis_title:
         fig.update_yaxes(title_text=yaxis_title)
     return fig
+
+
+def tempo_stats_metrics(df: pd.DataFrame, dias_col: str = 'Dias para Resolução') -> None:
+    """Renderiza conjunto padrão de métricas de tempo (média, mediana, min, max)."""
+    dias_validos = pd.to_numeric(df.get(dias_col, pd.Series(dtype=float)), errors='coerce').dropna()
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        metric("Média de Dias", f"{dias_validos.mean():.1f}" if not dias_validos.empty else "N/A")
+    with col2:
+        metric("Mediana de Dias", f"{dias_validos.median():.1f}" if not dias_validos.empty else "N/A")
+    with col3:
+        metric("Mínimo de Dias", f"{dias_validos.min():.0f}" if not dias_validos.empty else "N/A")
+    with col4:
+        metric("Máximo de Dias", f"{dias_validos.max():.0f}" if not dias_validos.empty else "N/A")
 

@@ -22,7 +22,7 @@ from jiraproject.utils_arrow import to_arrow_safe_numeric, make_display_copy
 from jiraproject.utils_dates import compute_days_resolution
 from jiraproject.services import jira as jira_service
 from jiraproject.utils.log import info, ok, warn, error
-from jiraproject.utils.ui import tipo_icon, status_color, build_column_config, metric, pct_delta, pie, bar
+from jiraproject.utils.ui import tipo_icon, status_color, build_column_config, metric, pct_delta, pie, bar, tempo_stats_metrics
 
 # Helpers internos para reduzir duplicação
 def calc_dias(df: pd.DataFrame, created_col: str = 'Data Criação', resolved_col: str = 'Data Resolução', out_col: str = 'Dias para Resolução') -> pd.DataFrame:
@@ -1061,38 +1061,7 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
             # Segunda linha de métricas - Estatísticas de Tempo
             if 'Dias para Resolução' in df_exibir.columns:
                 st.subheader("⏱️ Estatísticas de Tempo")
-                col1, col2, col3, col4 = st.columns(4)
-                
-                # Filtrar apenas itens com dias calculados (não nulos)
-                dias_validos = df_exibir['Dias para Resolução'].dropna()
-                
-                with col1:
-                    if not dias_validos.empty:
-                        media_dias = dias_validos.mean()
-                        metric("Média de Dias", f"{media_dias:.1f}")
-                    else:
-                        metric("Média de Dias", "N/A")
-                
-                with col2:
-                    if not dias_validos.empty:
-                        mediana_dias = dias_validos.median()
-                        metric("Mediana de Dias", f"{mediana_dias:.1f}")
-                    else:
-                        metric("Mediana de Dias", "N/A")
-                
-                with col3:
-                    if not dias_validos.empty:
-                        min_dias = dias_validos.min()
-                        metric("Mínimo de Dias", f"{min_dias:.0f}")
-                    else:
-                        metric("Mínimo de Dias", "N/A")
-                
-                with col4:
-                    if not dias_validos.empty:
-                        max_dias = dias_validos.max()
-                        metric("Máximo de Dias", f"{max_dias:.0f}")
-                    else:
-                        metric("Máximo de Dias", "N/A")
+                tempo_stats_metrics(df_exibir, 'Dias para Resolução')
             
             # Botão de download
             csv = df_exibir.to_csv(index=False)
