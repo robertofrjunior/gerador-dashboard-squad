@@ -1,0 +1,37 @@
+Chave,Tipo de Item,Status,Resumo,Responsável,Story Points
+SMD-2158,Debito Tecnico,Pronto para desenvolvimento,Automação CMS,Não atribuído,3.0
+SMD-2086,História,Aguardando correcao,[CMS - Blog] Datas de criação e de postagem nos atributos,Neilanny Amorim Fernandes,3.0
+SMD-2085,História,Concluído,[CMS] [Blog] - Status de Agendado para publicações,Igor Prado,3.0
+SMD-1924,História,Em QA,[Blog] Classificação de artigos (visual) ,Neilanny Amorim Fernandes,5.0
+SMD-2152,Debito Tecnico,Em andamento,[Mettacard] Refatoração do componente de imagens ,Carlos Henrique Rodrigues Pereira,8.0
+SMD-1931,História,Desenvolvimento Finalizado,[Guia Nova Casa] Remoção da autenticação terceirizada,Igor Prado,8.0
+SMD-2185,Impedimento,Em andamento,Erro na API Plataforma,Não atribuído,0.0
+SMD-2184,Bug-Task,Pronto para desenvolvimento,[BUG] Data de postagem não definida,gcoutinho.works,0.0
+SMD-2183,Task-DevSecOps,Concluído,[DevOps] Roteiro,Ana Claudia da Silva,0.0
+SMD-2182,Task-DevSecOps,Concluído,[DevOps] Executar em HML,Ana Claudia da Silva,0.0
+SMD-2180,Task-QA,Em QA,Testes,Neilanny Amorim Fernandes,0.0
+SMD-2178,Task-QA,Aguardando correcao,Testes,Neilanny Amorim Fernandes,0.0
+SMD-2177,Subtarefa,Pronto para desenvolvimento,[DevSecOps] - Configuração da pipeline,Ana Claudia da Silva,0.0
+SMD-2176,Task-DevSecOps,Concluído,[DevOps] Roteiro,Ana Claudia da Silva,0.0
+SMD-2175,Task-DevSecOps,Concluído,[DevOps] Executar em HML,Ana Claudia da Silva,0.0
+SMD-2174,Impedimento,Concluído,Configuração de pipeline,Não atribuído,0.0
+SMD-2173,Task-QA,Concluído,Testes,Neilanny Amorim Fernandes,0.0
+SMD-2172,Impedimento,Em andamento,[BUG] Carregamento das imagens,Carlos Henrique Rodrigues Pereira,0.0
+SMD-2171,Subtarefa,Concluído,[Front] - Remoção da autenticação com Firebase,Lorena Lima da Silveira dos Santos,0.0
+SMD-2170,Task-DevSecOps,Concluído,[DevOps] Roteiro,Ana Claudia da Silva,0.0
+SMD-2169,Task-DevSecOps,Concluído,[DevOps] Executar em HML,Ana Claudia da Silva,0.0
+SMD-2166,Subtarefa,Desenvolvimento Finalizado,Implementar coluna de data de postagem na listagem de publicações,gcoutinho.works,0.0
+SMD-2165,Subtarefa,Desenvolvimento Finalizado,Implementar coluna de data de criação na listagem de publicações,gcoutinho.works,0.0
+SMD-2164,Task-QA,Aguardando correcao,Testes,Neilanny Amorim Fernandes,0.0
+SMD-2163,Task-DevSecOps,Concluído,[DevOps] Roteiro,Ana Claudia da Silva,0.0
+SMD-2162,Task-DevSecOps,Concluído,[DevOps] Executar em HML,Ana Claudia da Silva,0.0
+SMD-2161,Task-DevSecOps,Concluído,[DevOps] Roteiro,Ana Claudia da Silva,0.0
+SMD-2160,Task-DevSecOps,Concluído,[DevOps] Executar em HML,Ana Claudia da Silva,0.0
+SMD-2159,Subtarefa,Concluído,"[Front] - Adicionar status ""Agendado""",Lorena Lima da Silveira dos Santos,0.0
+SMD-2157,Impedimento,Concluído,Ambiente,Alexandre Bordon Facci,0.0
+SMD-2091,Subtarefa,Desenvolvimento Finalizado,[Front-end] Integração com backend,gcoutinho.works,0.0
+SMD-2090,Subtarefa,Desenvolvimento Finalizado,[Front-end] Aplicar ordenação nas colunas,gcoutinho.works,0.0
+SMD-2089,Subtarefa,Desenvolvimento Finalizado,[Backend] Criar ordernação de lista de artigos por parâmetro,Leonardo Reblin,0.0
+SMD-2088,Subtarefa,Desenvolvimento Finalizado,[Backend] Retornar data de criação do artigo,Leonardo Reblin,0.0
+SMD-1997,Task-Arquitetura,Concluído,Análise de Arquitetura,Não atribuído,0.0
+SMD-1996,Task-Arquitetura,Concluído,Análise de Arquitetura,Não atribuído,0.0

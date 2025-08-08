@@ -1,0 +1,9 @@
+requests
+pandas
+matplotlib
+python-dotenv
+typer
+
+pytest
+pytest-mock
+requests-mock
