@@ -2,6 +2,7 @@
 
 # Reexport utilidades para compatibilidade com testes antigos
 from .utils import log  # noqa: F401
+from .credcesta import charts  # noqa: F401
 try:
     # mover util de compatibilidade
     from .credcesta.utils import sanitize_filename  # type: ignore
