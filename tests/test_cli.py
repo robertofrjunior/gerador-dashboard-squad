@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 from pathlib import Path
 from typer.testing import CliRunner
-from jiraproject.cli import app
+from jiraproject.credcesta.cli import app
 
 runner = CliRunner()
 
