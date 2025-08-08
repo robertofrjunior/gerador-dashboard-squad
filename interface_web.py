@@ -15,7 +15,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Importar módulos do projeto
-from jiraproject import sprint_service, charts, settings
+from jiraproject.sprint_service import analisar_sprint
 from jiraproject.utils_constants import TIPOS_AGEIS_CANON, STATUS_CONCLUIDO, STORY_POINTS_PADRAO
 from jiraproject.utils_normalize import normalize, canonical_type
 from jiraproject.utils_arrow import to_arrow_safe_numeric, make_display_copy
@@ -525,7 +525,7 @@ with st.sidebar:
                             
                             for sprint_id in sprints_validadas:
                                 try:
-                                    df_sprint = sprint_service.analisar_sprint(projeto_final, sprint_id)
+                                    df_sprint = analisar_sprint(projeto_final, sprint_id)
                                     if not df_sprint.empty:
                                         # Adicionar coluna identificando a sprint
                                         df_sprint['Sprint ID'] = sprint_id
