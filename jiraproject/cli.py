@@ -1,8 +1,8 @@
 import typer
 from pathlib import Path
 from jiraproject import sprint_service
-from jiraproject.credcesta import charts
-from jiraproject import sanitize_filename
+from jiraproject import charts
+from jiraproject.utils import sanitize_filename
 
 app = typer.Typer()
 
