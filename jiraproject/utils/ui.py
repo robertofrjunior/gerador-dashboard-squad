@@ -181,6 +181,8 @@ def tempo_stats_metrics(df: pd.DataFrame, dias_col: str = 'Dias para Resolução
     with col4:
         metric("Máximo de Dias", f"{dias_validos.max():.0f}" if not dias_validos.empty else "N/A")
 
+<<<<<<< HEAD
+=======
 
 def scatter(
     df,
@@ -206,3 +208,4 @@ def scatter(
     )
     return apply_chart_layout(fig, title=title or "", show_legend=bool(color), xaxis_title=str(x), yaxis_title=str(y))
 
+>>>>>>> origin/main
