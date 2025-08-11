@@ -7,3 +7,4 @@ typer
 pytest
 pytest-mock
 requests-mock
+pytest-cov

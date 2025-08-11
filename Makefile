@@ -7,6 +7,6 @@ venv:
 	. $(VENV)/bin/activate; python -m pip install -q -r requirements.txt pytest
 
 test:
-	. $(VENV)/bin/activate; PYTHONPATH=. pytest -q
+	. $(VENV)/bin/activate; PYTHONPATH=. pytest --cov=jiraproject --cov-report=xml --cov-report=term -q
 
 

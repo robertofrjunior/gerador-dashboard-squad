@@ -373,7 +373,7 @@ with st.sidebar:
                         for opcao in opcoes_sprint:
                             if opcao['label'] == sprint_escolhida:
                                 sprint_selecionada = opcao
-                            break
+                                break
                         
                         if sprint_selecionada:
                             # Mostrar detalhes da sprint selecionada
@@ -1381,6 +1381,8 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
                 with col_h2:
                     hist_fim = st.date_input("Histórico - Criados até:", value=data_resolucao_fim, help=None)
                 if proj_key and hist_inicio and hist_fim:
+                    # Inicializa para evitar NameError caso a atribuição abaixo falhe
+                    df_hist = pd.DataFrame()
                     from jiraproject.services import jira as jira_service
                     issues = jira_service.buscar_issues_por_periodo(
                         proj_key,
@@ -1416,9 +1418,9 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
                             'Data Resolução': pd.to_datetime(resolutiondate) if resolutiondate else pd.NaT,
                             'Story Points': sp
                         })
-                    df_hist = pd.DataFrame(linhas)
+                    df_hist = pd.DataFrame(linhas or [])
                     # Se não houver dados, evitar KeyError e seguir com vazio
-                    if df_hist.empty:
+                    if not isinstance(df_hist, pd.DataFrame) or df_hist.empty:
                         st.info("Sem dados históricos para o período selecionado.")
                         df_story_points = pd.DataFrame(columns=['Chave','Resumo','Tipo de Item','Status','Responsável','Data Criação','Data Resolução','Story Points','Dias para Resolução'])
                         df_filtrado_sp = df_story_points.copy()
