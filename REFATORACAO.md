@@ -49,9 +49,15 @@ Refatorar a aplicação Streamlit para análise de sprints do Jira, focando em m
 - [ ] Expandir `build_column_config`
   - [ ] Incluir mais colunas comuns (links, datas, numéricos, status, tipo)
   - [ ] Centralizar máscaras/formatos (dias, porcentagens, Story Points)
+<<<<<<< HEAD
 - [ ] Migrar JQLs restantes para builders
   - [ ] Mapear todos os pontos ainda usando JQL literal ou `jira_client` direto
   - [ ] Encaminhar tudo via `services/jira.py` + builders em `utils/jql.py`
+=======
+- [x] Migrar JQLs restantes para builders
+  - [x] Mapear todos os pontos ainda usando JQL literal ou `jira_client` direto
+  - [x] Encaminhar tudo via `services/jira.py` + builders em `utils/jql.py`
+>>>>>>> origin/main
 - [ ] Consolidar cálculos e nomes de colunas
   - [ ] Usar `calc_dias` em todos os pontos de cálculo de “Dias para Resolução”
   - [ ] Padronizar o nome “Dias para Resolução” (evitar variações)

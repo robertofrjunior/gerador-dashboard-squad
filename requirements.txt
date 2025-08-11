@@ -7,4 +7,7 @@ typer
 pytest
 pytest-mock
 requests-mock
+<<<<<<< HEAD
 pytest-cov
+=======
+>>>>>>> origin/main

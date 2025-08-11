@@ -181,3 +181,31 @@ def tempo_stats_metrics(df: pd.DataFrame, dias_col: str = 'Dias para Resolução
     with col4:
         metric("Máximo de Dias", f"{dias_validos.max():.0f}" if not dias_validos.empty else "N/A")
 
+<<<<<<< HEAD
+=======
+
+def scatter(
+    df,
+    x,
+    y,
+    title: str | None = None,
+    color=None,
+    size=None,
+    hover_data: list[str] | None = None,
+    color_map: Dict[str, str] | None = None,
+    continuous_scale: str | None = None,
+):
+    fig = px.scatter(
+        df,
+        x=x,
+        y=y,
+        color=color,
+        size=size,
+        hover_data=hover_data,
+        title=title or "",
+        color_discrete_map=color_map or None,
+        color_continuous_scale=continuous_scale or None,
+    )
+    return apply_chart_layout(fig, title=title or "", show_legend=bool(color), xaxis_title=str(x), yaxis_title=str(y))
+
+>>>>>>> origin/main

@@ -6,10 +6,13 @@ Desenvolvido com Streamlit para facilitar a visualização das métricas.
 
 import streamlit as st
 import pandas as pd
+<<<<<<< HEAD
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import os
+=======
+>>>>>>> origin/main
 from datetime import datetime
 import warnings
 warnings.filterwarnings('ignore')
@@ -18,11 +21,19 @@ warnings.filterwarnings('ignore')
 from jiraproject.sprint_service import analisar_sprint
 from jiraproject.utils_constants import TIPOS_AGEIS_CANON, STATUS_CONCLUIDO, STORY_POINTS_PADRAO
 from jiraproject.utils_normalize import normalize, canonical_type
+<<<<<<< HEAD
 from jiraproject.utils_arrow import to_arrow_safe_numeric, make_display_copy
 from jiraproject.utils_dates import compute_days_resolution
 from jiraproject.services import jira as jira_service
 from jiraproject.utils.log import info, ok, warn, error
 from jiraproject.utils.ui import tipo_icon, status_color, build_column_config, metric, pct_delta, pie, bar, tempo_stats_metrics
+=======
+from jiraproject.utils_arrow import make_display_copy
+from jiraproject.utils_dates import compute_days_resolution
+from jiraproject.services import jira as jira_service
+from jiraproject.utils.log import info, ok, warn, error
+from jiraproject.utils.ui import tipo_icon, status_color, build_column_config, metric, pct_delta, pie, bar, tempo_stats_metrics, scatter
+>>>>>>> origin/main
 
 # Helpers internos para reduzir duplicação
 def calc_dias(df: pd.DataFrame, created_col: str = 'Data Criação', resolved_col: str = 'Data Resolução', out_col: str = 'Dias para Resolução') -> pd.DataFrame:
@@ -368,12 +379,20 @@ with st.sidebar:
                     )
                     
                     # Encontrar a sprint selecionada
+<<<<<<< HEAD
                     if sprint_escolhida:
                         sprint_selecionada = None
                         for opcao in opcoes_sprint:
                             if opcao['label'] == sprint_escolhida:
                                 sprint_selecionada = opcao
                                 break
+=======
+                    sprint_selecionada = None
+                    for opcao in opcoes_sprint:
+                        if opcao['label'] == sprint_escolhida:
+                            sprint_selecionada = opcao
+                            break
+>>>>>>> origin/main
                         
                         if sprint_selecionada:
                             # Mostrar detalhes da sprint selecionada
@@ -410,6 +429,7 @@ with st.sidebar:
     col_manual, col_acoes = st.columns([3, 1])
     
     with col_manual:
+<<<<<<< HEAD
         # Determinar valor inicial baseado nos flags
         if st.session_state.get('clear_sprint_input', False):
             valor_input = ''
@@ -421,11 +441,26 @@ with st.sidebar:
         sprint_ids_text = st.text_input(
             "Ou digite IDs manualmente (separados por vírgula)",
             value=valor_input,
+=======
+        # Sincronizar valor do input com seleção por selectbox
+        if st.session_state.get('clear_sprint_input', False):
+            st.session_state['sprint_ids_input'] = ''
+            del st.session_state['clear_sprint_input']
+        elif 'selected_sprint_ids' in st.session_state:
+            st.session_state['sprint_ids_input'] = st.session_state['selected_sprint_ids']
+            del st.session_state['selected_sprint_ids']
+
+        # Input de texto para múltiplas sprints (valor vem do session_state)
+        sprint_ids_text = st.text_input(
+            "Ou digite IDs manualmente (separados por vírgula)",
+            value=st.session_state.get('sprint_ids_input', ''),
+>>>>>>> origin/main
             placeholder="Ex: 2614, 2615, 2616",
             help="Digite um ou mais IDs de sprint separados por vírgula",
             key='sprint_ids_input',
             disabled=not projeto_validado
         )
+<<<<<<< HEAD
         
         # Limpar o valor selecionado após usar
         if 'selected_sprint_ids' in st.session_state:
@@ -434,6 +469,12 @@ with st.sidebar:
     with col_acoes:
         st.write("") # Espaço
         st.write("") # Espaço
+=======
+    
+    with col_acoes:
+        st.empty()
+        st.empty()
+>>>>>>> origin/main
         if st.button("🔄 Limpar", use_container_width=True, disabled=not projeto_validado):
             # Usar um flag para limpar na próxima execução
             st.session_state['clear_sprint_input'] = True
@@ -473,13 +514,22 @@ with st.sidebar:
                     if nomes_sprints:
                         st.write("**Sprints:** " + " | ".join(nomes_sprints))
                 
+<<<<<<< HEAD
         except ValueError as e:
             st.error(f"❌ Formato inválido. Use números separados por vírgula")
+=======
+        except ValueError:
+            st.error("❌ Formato inválido. Use números separados por vírgula")
+>>>>>>> origin/main
     
     # Validação e botão para buscar dados
     st.divider()
     projeto_final = projeto_validado if projeto_validado else projeto_input
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> origin/main
     # Validar sprints antes de permitir busca
     if not projeto_final or len(projeto_final.strip()) == 0:
         st.warning("⚠️ Digite o nome do projeto para continuar")
@@ -487,25 +537,47 @@ with st.sidebar:
         st.warning("⚠️ Projeto precisa ser validado antes de buscar dados")
     elif not sprints_selecionadas:
         st.warning("⚠️ Digite os IDs das sprints que deseja analisar")
+<<<<<<< HEAD
     else:
         # Validar as sprints selecionadas
         col_validacao, col_botao = st.columns([2, 1])
         
+=======
+        # Mesmo sem IDs, exibir área com botões (desabilitados) para orientar o usuário
+        col_validacao, col_botao = st.columns([2, 1])
+        with col_validacao:
+            st.button("✔️ Validar Sprints", use_container_width=True, disabled=True, help="Informe os IDs primeiro")
+        with col_botao:
+            st.button("🔍 Buscar Dados", type="primary", use_container_width=True, disabled=True, help="Informe e valide os IDs primeiro")
+    else:
+        # Validar as sprints selecionadas
+        col_validacao, col_botao = st.columns([2, 1])
+
+>>>>>>> origin/main
         with col_validacao:
             if st.button("✔️ Validar Sprints", use_container_width=True):
                 with st.spinner("Validando sprints..."):
                     validas, invalidas = validar_sprints_especificas(projeto_final, sprints_selecionadas)
+<<<<<<< HEAD
                     
+=======
+
+>>>>>>> origin/main
                     if validas:
                         st.session_state['sprints_validadas'] = validas
                         st.success(f"✅ {len(validas)} sprint(s) válida(s)")
                     if invalidas:
                         st.warning(f"⚠️ {len(invalidas)} sprint(s) inválida(s): {invalidas}")
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> origin/main
         with col_botao:
             # Só ativar se tiver sprints validadas
             sprints_validadas = st.session_state.get('sprints_validadas', [])
             botao_ativo = bool(projeto_validado and sprints_validadas)
+<<<<<<< HEAD
             
             if st.button(
                 "🔍 Buscar Dados", 
@@ -513,16 +585,33 @@ with st.sidebar:
                 use_container_width=True, 
                 disabled=not botao_ativo,
                 help="Valide as sprints primeiro" if not sprints_validadas else "Buscar dados das sprints validadas"
+=======
+
+            if st.button(
+                "🔍 Buscar Dados",
+                type="primary",
+                use_container_width=True,
+                disabled=not botao_ativo,
+                help="Valide as sprints primeiro" if not sprints_validadas else "Buscar dados das sprints validadas",
+>>>>>>> origin/main
             ):
                 if projeto_final and sprints_validadas:
                     with st.spinner("🔄 Buscando dados do Jira..."):
                         try:
                             # Buscar dados apenas das sprints validadas
+<<<<<<< HEAD
                             dfs_sprints = []
                             sprints_com_erro = []
                             sprints_sem_dados = []
                             sprint_info = []
                             
+=======
+                            dfs_sprints: list[pd.DataFrame] = []
+                            sprints_com_erro: list[str] = []
+                            sprints_sem_dados: list[int] = []
+                            sprint_info: list[dict] = []
+
+>>>>>>> origin/main
                             for sprint_id in sprints_validadas:
                                 try:
                                     df_sprint = analisar_sprint(projeto_final, sprint_id)
@@ -531,14 +620,22 @@ with st.sidebar:
                                         df_sprint['Sprint ID'] = sprint_id
                                         df_sprint['Sprint Nome'] = df_sprint.attrs.get('sprint_nome', f'Sprint {sprint_id}')
                                         dfs_sprints.append(df_sprint)
+<<<<<<< HEAD
                                         
+=======
+
+>>>>>>> origin/main
                                         # Coletar informações da sprint
                                         sprint_info.append({
                                             'id': sprint_id,
                                             'nome': df_sprint.attrs.get('sprint_nome', f'Sprint {sprint_id}'),
                                             'inicio': df_sprint.attrs.get('sprint_inicio'),
                                             'fim': df_sprint.attrs.get('sprint_fim'),
+<<<<<<< HEAD
                                             'total_itens': len(df_sprint)
+=======
+                                            'total_itens': len(df_sprint),
+>>>>>>> origin/main
                                         })
                                     else:
                                         sprints_sem_dados.append(sprint_id)
@@ -550,6 +647,7 @@ with st.sidebar:
                                         sprints_com_erro.append(f"Sprint {sprint_id} (projeto inválido)")
                                     else:
                                         sprints_com_erro.append(f"Sprint {sprint_id} (erro: {str(e)[:30]}...)")
+<<<<<<< HEAD
                             
                             # Mostrar avisos detalhados para sprints com problemas
                             if sprints_com_erro or sprints_sem_dados:
@@ -575,12 +673,42 @@ with st.sidebar:
                                 # Combinar todos os DataFrames
                                 df_combinado = pd.concat(dfs_sprints, ignore_index=True)
                                 
+=======
+
+                            # Mostrar avisos detalhados para sprints com problemas
+                            if sprints_com_erro or sprints_sem_dados:
+                                problemas: list[str] = []
+                                if sprints_com_erro:
+                                    problemas.extend(sprints_com_erro)
+                                if sprints_sem_dados:
+                                    for sid in sprints_sem_dados:
+                                        problemas.append(f"Sprint {sid} (sem issues)")
+
+                                st.warning(f"⚠️ Problemas encontrados: {', '.join(problemas)}")
+
+                                # Sugestões de soluções
+                                if sprints_com_erro:
+                                    st.markdown(
+                                        """
+                                        **💡 Possíveis soluções:**
+                                        - **404 (não encontrada):** Verifique se o ID da sprint existe
+                                        - **400 (projeto inválido):** Confirme se o nome do projeto está correto
+                                        - **Sem issues:** A sprint pode estar vazia ou ter problemas de permissão
+                                        """
+                                    )
+
+                            if dfs_sprints:
+                                # Combinar todos os DataFrames
+                                df_combinado = pd.concat(dfs_sprints, ignore_index=True)
+
+>>>>>>> origin/main
                                 # Armazenar no session_state
                                 st.session_state['df'] = df_combinado
                                 st.session_state['projeto'] = projeto_final
                                 st.session_state['sprints_selecionadas'] = sprints_validadas
                                 st.session_state['sprint_info'] = sprint_info
                                 st.session_state['total_sprint'] = len(df_combinado)
+<<<<<<< HEAD
                                 
                                 # Para compatibilidade com código existente
                                 st.session_state['sprint_id'] = sprints_validadas[0] if len(sprints_validadas) == 1 else "Múltiplas"
@@ -599,6 +727,34 @@ with st.sidebar:
                                 3. **Permissões:** Certifique-se de que tem acesso ao projeto e sprints
                                 4. **Configuração da API:** Verifique URL, email e token nas configurações
                                 """)
+=======
+
+                                # Para compatibilidade com código existente
+                                st.session_state['sprint_id'] = (
+                                    sprints_validadas[0] if len(sprints_validadas) == 1 else "Múltiplas"
+                                )
+                                st.session_state['sprint_nome'] = (
+                                    sprint_info[0]['nome'] if len(sprint_info) == 1 else f"{len(sprints_validadas)} Sprints"
+                                )
+                                st.session_state['sprint_inicio'] = sprint_info[0]['inicio'] if len(sprint_info) == 1 else None
+                                st.session_state['sprint_fim'] = sprint_info[0]['fim'] if len(sprint_info) == 1 else None
+
+                                st.success(
+                                    f"✅ Dados de {len(dfs_sprints)} sprint(s) carregados com sucesso! ({len(df_combinado)} issues no total)"
+                                )
+                                st.rerun()
+                            else:
+                                st.error("❌ Nenhum dado válido encontrado para as sprints selecionadas")
+                                st.markdown(
+                                    """
+                                    **💡 O que verificar:**
+                                    1. **Nome do projeto:** Confirme se está exatamente como aparece no Jira
+                                    2. **IDs das sprints:** Verifique se os números estão corretos
+                                    3. **Permissões:** Certifique-se de que tem acesso ao projeto e sprints
+                                    4. **Configuração da API:** Verifique URL, email e token nas configurações
+                                    """
+                                )
+>>>>>>> origin/main
                         except Exception as e:
                             st.error(f"❌ Erro ao buscar dados: {str(e)}")
     
@@ -901,7 +1057,11 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
                     # Distribuição por tipo
                     tipo_resp_counts = df_resp['Tipo de Item'].value_counts()
 
+<<<<<<< HEAD
                     fig_tipo_resp = pie(values=tipo_resp_counts.values, names=tipo_resp_counts.index, title=f'Tipos de Item - {responsavel_selecionado}', color_sequence=px.colors.qualitative.Set2)
+=======
+                    fig_tipo_resp = pie(values=tipo_resp_counts.values, names=tipo_resp_counts.index, title=f'Tipos de Item - {responsavel_selecionado}')
+>>>>>>> origin/main
                     st.plotly_chart(fig_tipo_resp, use_container_width=True)
                 
                 with col2:
@@ -1156,7 +1316,11 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
                 
                 # Scatter plot: Story Points vs Dias
                 st.subheader("📈 Relação entre Story Points e Tempo de Conclusão")
+<<<<<<< HEAD
                 fig_scatter = px.scatter(
+=======
+                fig_scatter = scatter(
+>>>>>>> origin/main
                     df_tempo,
                     x='Story Points',
                     y='Dias para Conclusão',
@@ -1164,11 +1328,19 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
                     size='Story Points',
                     hover_data=['Chave', 'Resumo', 'Responsável'],
                     title='Relação entre Story Points e Tempo de Conclusão',
+<<<<<<< HEAD
                     color_discrete_map={
                         'História': '#0052cc',      # Azul Jira - Story
                         'Debito Tecnico': '#ff8b00',  # Laranja Jira - Technical Debt
                         'Bug': '#de350b',            # Vermelho Jira - Bug
                         'Spike': '#00875a'           # Verde Jira - Spike
+=======
+                    color_map={
+                        'História': '#0052cc',
+                        'Debito Tecnico': '#ff8b00',
+                        'Bug': '#de350b',
+                        'Spike': '#00875a'
+>>>>>>> origin/main
                     }
                 )
                 st.plotly_chart(fig_scatter, use_container_width=True)
@@ -1269,10 +1441,14 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
             # Ordenar por tempo total (decrescente)
             df_tabela_final = df_tabela_final.sort_values('Tempo Total (dias)', ascending=False)
             
+<<<<<<< HEAD
             # Criar coluna com formato correto para LinkColumn (texto|url)
             df_tabela_final['Chave_Link'] = df_tabela_final['Chave'].apply(
                 lambda x: f"{x}|{settings.JIRA_URL}/browse/{x}" if pd.notna(x) else ""
             )
+=======
+                # Removido: coluna com links diretos (evitar dependência de settings não importado)
+>>>>>>> origin/main
             
             # Reorganizar colunas
             colunas_finais = ['Chave', 'Resumo', 'Status', 'Agente Causador', 'Tempo Total (dias)']
@@ -1372,17 +1548,28 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
             
             # === MODO HISTÓRICO (IGNORAR SPRINTS) ===
             st.markdown("---")
+<<<<<<< HEAD
             usar_historico = st.checkbox("Usar modo histórico por período (ignora sprints selecionadas)", value=False, help=None)
+=======
+            usar_historico = st.checkbox("Usar modo histórico por período (ignora sprints selecionadas)", value=False)
+>>>>>>> origin/main
             if usar_historico:
                 proj_key = st.session_state.get('projeto_key') or st.session_state.get('projeto')
                 col_h1, col_h2 = st.columns(2)
                 with col_h1:
+<<<<<<< HEAD
                     hist_inicio = st.date_input("Histórico - Criados a partir de:", value=data_inicio, help=None)
                 with col_h2:
                     hist_fim = st.date_input("Histórico - Criados até:", value=data_resolucao_fim, help=None)
                 if proj_key and hist_inicio and hist_fim:
                     # Inicializa para evitar NameError caso a atribuição abaixo falhe
                     df_hist = pd.DataFrame()
+=======
+                    hist_inicio = st.date_input("Histórico - Criados a partir de:", value=data_inicio)
+                with col_h2:
+                    hist_fim = st.date_input("Histórico - Criados até:", value=data_resolucao_fim)
+                if proj_key and hist_inicio and hist_fim:
+>>>>>>> origin/main
                     from jiraproject.services import jira as jira_service
                     issues = jira_service.buscar_issues_por_periodo(
                         proj_key,
@@ -1418,13 +1605,20 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
                             'Data Resolução': pd.to_datetime(resolutiondate) if resolutiondate else pd.NaT,
                             'Story Points': sp
                         })
+<<<<<<< HEAD
                     df_hist = pd.DataFrame(linhas or [])
                     # Se não houver dados, evitar KeyError e seguir com vazio
                     if not isinstance(df_hist, pd.DataFrame) or df_hist.empty:
+=======
+                    df_hist = pd.DataFrame(linhas)
+                    # Se não houver dados, evitar KeyError e seguir com vazio
+                    if df_hist.empty:
+>>>>>>> origin/main
                         st.info("Sem dados históricos para o período selecionado.")
                         df_story_points = pd.DataFrame(columns=['Chave','Resumo','Tipo de Item','Status','Responsável','Data Criação','Data Resolução','Story Points','Dias para Resolução'])
                         df_filtrado_sp = df_story_points.copy()
                     else:
+<<<<<<< HEAD
                         # Aplicar os mesmos filtros de tipos e SP > 0 (já garantidos pela JQL, mas reforçamos)
                         mask_tipos_hist = df_hist['Tipo de Item'].apply(lambda x: normalize(x) in tipos_validos_norm)
                         df_story_points = df_hist[mask_tipos_hist & (df_hist['Story Points'] > 0)].copy()
@@ -1434,6 +1628,16 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
                         df_filtrado_sp = df_story_points.copy()
                         df_filtrado_sp = df_filtrado_sp[df_filtrado_sp['Data Criação'].notna()]
                         df_filtrado_sp = df_filtrado_sp[(df_filtrado_sp['Data Criação'].dt.date >= hist_inicio) & (df_filtrado_sp['Data Criação'].dt.date <= hist_fim)]
+=======
+                        # Aplicar filtros e cálculo sobre histórico
+                        mask_tipos_hist = df_hist['Tipo de Item'].apply(lambda x: normalize(x) in tipos_validos_norm)
+                        df_story_points = df_hist[mask_tipos_hist & (df_hist['Story Points'] > 0)].copy()
+                        df_story_points = calc_dias(df_story_points, 'Data Criação', 'Data Resolução', out_col='Dias para Resolução')
+                        df_filtrado_sp = df_story_points.copy()
+                        df_filtrado_sp = df_filtrado_sp[df_filtrado_sp['Data Criação'].notna()]
+                        df_filtrado_sp = df_filtrado_sp[(df_filtrado_sp['Data Criação'].dt.date >= hist_inicio) & (df_filtrado_sp['Data Criação'].dt.date <= hist_fim)]
+            # Caso não esteja em modo histórico, df_filtrado_sp já foi calculado acima a partir das sprints
+>>>>>>> origin/main
             
             # === SEÇÃO 2: MÉDIA POR STORY POINTS ===
             st.subheader("📊 Média de Dias por Story Points")
@@ -1523,7 +1727,12 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
                     media_por_sp = df_resolvidos.groupby('Story Points')['Dias para Resolução'].agg(['mean', 'count']).reset_index()
                     media_por_sp.columns = ['Story Points', 'Média Dias', 'Total Itens']
                     
+<<<<<<< HEAD
                     fig_media_sp = px.bar(media_por_sp, x='Story Points', y='Média Dias', title='Média de Dias por Story Points', text='Total Itens', color='Média Dias', color_continuous_scale='Viridis')
+=======
+                    fig_media_sp = bar(media_por_sp, x='Story Points', y='Média Dias', title='Média de Dias por Story Points', color='Média Dias')
+                    fig_media_sp.update_traces(text=media_por_sp['Total Itens'], textposition='outside')
+>>>>>>> origin/main
                     fig_media_sp.update_traces(textposition='outside')
                     fig_media_sp.update_layout(showlegend=False)
                     st.plotly_chart(fig_media_sp, use_container_width=True)
@@ -1533,7 +1742,11 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
             with col_graf2:
                 # Gráfico de dispersão - Story Points vs Dias
                 if not df_resolvidos.empty:
+<<<<<<< HEAD
                     fig_scatter_sp = px.scatter(
+=======
+                    fig_scatter_sp = scatter(
+>>>>>>> origin/main
                         df_resolvidos,
                         x='Story Points',
                         y='Dias para Resolução',
