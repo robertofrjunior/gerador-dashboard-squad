@@ -8,6 +8,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
+from typing import Optional, Dict, Any, List, Tuple
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -17,21 +18,25 @@ from jiraproject.utils_constants import TIPOS_AGEIS_CANON
 from jiraproject.utils_normalize import normalize, canonical_type
 from jiraproject.config import config
 from jiraproject.utils_arrow import make_display_copy
-from jiraproject.utils_dates import compute_days_resolution
+from jiraproject.utils_calculations import calc_resolution_days, get_resolved_items, calculate_time_statistics, group_by_time_stats
 from jiraproject.services import jira as jira_service
 from jiraproject.utils.log import info, ok, warn, error
 from jiraproject.utils.ui import status_color, build_column_config, metric, pct_delta, pie, bar, tempo_stats_metrics, scatter
+from jiraproject.components import FilterComponents, apply_filters, show_filter_summary
+from jiraproject.charts import ChartFactory
+from jiraproject.metrics import DashboardMetrics
 
 
-# Helpers internos para reduzir duplicação
+# Helpers internos para reduzir duplicação (deprecated - usar utils_calculations)
 def calc_dias(df: pd.DataFrame, created_col: str = 'Data Criação', resolved_col: str = 'Data Resolução', out_col: str = 'Dias para Resolução') -> pd.DataFrame:
-    return compute_days_resolution(df, created_col, resolved_col, out_col=out_col)
+    return calc_resolution_days(df, created_col, resolved_col, out_col)
 
 
-def show_df(df: pd.DataFrame, **kwargs):
+def show_df(df: pd.DataFrame, **kwargs) -> None:
+    """Exibe DataFrame usando make_display_copy para compatibilidade."""
     st.dataframe(make_display_copy(df), **kwargs)
 @st.cache_data(show_spinner="Buscando sprints do projeto...", ttl=config.CACHE_TTL_SPRINTS)
-def buscar_sprints_do_projeto_cache(_projeto_validado):
+def buscar_sprints_do_projeto_cache(_projeto_validado: str) -> Optional[Dict[str, Any]]:
     """Busca sprints do board com cache para evitar múltiplas chamadas."""
     from jiraproject.services.jira import buscar_board_do_projeto, buscar_sprints_do_board
     
@@ -44,7 +49,7 @@ def buscar_sprints_do_projeto_cache(_projeto_validado):
     return None
 
 @st.cache_data(show_spinner="Validando projeto...")
-def resolver_nome_projeto(_projeto_input):
+def resolver_nome_projeto(_projeto_input: str) -> Tuple[str, bool, str]:
     """
     Resolve o nome correto do projeto testando variações comuns.
     
@@ -99,14 +104,14 @@ def resolver_nome_projeto(_projeto_input):
     return _projeto_input, False, f"Nenhuma variação válida encontrada para '{_projeto_input}'"
 
 @st.cache_data(show_spinner="Validando sprints...")
-def validar_sprints_especificas(_projeto, _sprint_ids):
+def validar_sprints_especificas(_projeto: str, _sprint_ids: List[int]) -> Tuple[List[int], List[int]]:
     """
     Valida apenas os IDs de sprint especificados pelo usuário.
     NÃO faz busca exaustiva.
     
     Args:
-        _projeto (str): Nome do projeto
-        _sprint_ids (list): Lista de IDs de sprint para validar
+        _projeto: Nome do projeto
+        _sprint_ids: Lista de IDs de sprint para validar
         
     Returns:
         tuple: (sprints_validas, sprints_invalidas)
@@ -136,7 +141,7 @@ def validar_sprints_especificas(_projeto, _sprint_ids):
     return sprints_validas, sprints_invalidas
 
 @st.cache_data(show_spinner="Carregando projetos do Jira...", ttl=config.CACHE_TTL_PROJETOS)
-def listar_projetos_cache():
+def listar_projetos_cache() -> List[Dict[str, str]]:
     """Retorna a lista de projetos do Jira (key e name)."""
     try:
         return jira_service.listar_projetos()
@@ -572,7 +577,12 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
                     valores = [historias_qtd, debitos_qtd, bugs_qtd]
                     nomes = ['História', 'Débito Técnico', 'Bug']
                     if sum(valores) > 0:
-                        fig_pizza_tipo = pie(values=valores, names=nomes)
+                        # Usando ChartFactory para gráfico padronizado
+                        fig_pizza_tipo = ChartFactory.create_pie_chart(
+                            values=valores, 
+                            names=nomes,
+                            title="Resumo por Tipo"
+                        )
                         st.plotly_chart(fig_pizza_tipo, use_container_width=True)
                     else:
                         st.info("Sem dados de Histórias/Débitos para exibir")
@@ -589,23 +599,20 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
                 st.info("⚠️ Esta aba requer as colunas 'Data Criação' e 'Data Resolução'. Carregue dados que incluam datas.")
             else:
                 # Lead time (Criação -> Resolução)
-                df_lt = df.copy()
-                df_lt = calc_dias(df_lt, 'Data Criação', 'Data Resolução', out_col='Dias para Resolução')
-                if 'Dias para Resolução' in df_lt.columns:
-                    df_lt['Dias para Resolução'] = pd.to_numeric(df_lt['Dias para Resolução'], errors='coerce')
-                df_resolvidos_lt = df_lt[df_lt['Dias para Resolução'].notna()].copy()
+                df_lt = calc_resolution_days(df.copy())
+                df_resolvidos_lt = get_resolved_items(df_lt)
+                # Calcular estatísticas de uma vez
+                time_stats = calculate_time_statistics(df_lt)
+                
                 col_m1, col_m2, col_m3, col_m4 = st.columns(4)
                 with col_m1:
-                    metric("Itens Resolvidos", len(df_resolvidos_lt))
+                    metric("Itens Resolvidos", time_stats['count'])
                 with col_m2:
-                    med = df_resolvidos_lt['Dias para Resolução'].mean() if not df_resolvidos_lt.empty else None
-                    metric("Lead time médio", f"{med:.1f}" if med is not None else "N/A")
+                    metric("Lead time médio", f"{time_stats['mean']:.1f}" if time_stats['mean'] is not None else "N/A")
                 with col_m3:
-                    mediana = df_resolvidos_lt['Dias para Resolução'].median() if not df_resolvidos_lt.empty else None
-                    metric("Mediana", f"{mediana:.1f}" if mediana is not None else "N/A")
+                    metric("Mediana", f"{time_stats['median']:.1f}" if time_stats['median'] is not None else "N/A")
                 with col_m4:
-                    p85 = df_resolvidos_lt['Dias para Resolução'].quantile(0.85) if not df_resolvidos_lt.empty else None
-                    metric("SLE (p85)", f"{p85:.1f}" if p85 is not None else "N/A")
+                    metric("SLE (p85)", f"{time_stats['p85']:.1f}" if time_stats['p85'] is not None else "N/A")
 
                 st.subheader("Distribuição de Lead time")
                 if not df_resolvidos_lt.empty:
@@ -687,10 +694,10 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
                 st.markdown("---")
                 # Lead time por tipo
                 st.subheader("Lead time por Tipo (média em dias)")
-                if not df_resolvidos_lt.empty:
-                    lt_tipo = df_resolvidos_lt.groupby('Tipo de Item')['Dias para Resolução'].mean().reset_index()
-                    lt_tipo['Dias para Resolução'] = lt_tipo['Dias para Resolução'].round(1)
-                    fig_lt_tipo = bar(lt_tipo, x='Tipo de Item', y='Dias para Resolução', title='Lead time médio por Tipo', color='Tipo de Item')
+                lt_tipo = group_by_time_stats(df_lt, 'Tipo de Item')
+                
+                if not lt_tipo.empty:
+                    fig_lt_tipo = bar(lt_tipo, x='Tipo de Item', y='Média Dias', title='Lead time médio por Tipo', color='Tipo de Item')
                     fig_lt_tipo.update_layout(showlegend=False, xaxis_tickangle=-45)
                     st.plotly_chart(fig_lt_tipo, use_container_width=True)
                 else:
@@ -842,43 +849,26 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
                 tempo_stats_metrics(df_with_days, 'Dias para Resolução')
                 st.markdown("---")
 
-            # Filtros
+            # Filtros usando componentes reutilizáveis
             st.subheader("🔍 Filtros")
             col_filtro1, col_filtro2 = st.columns(2)
 
             with col_filtro1:
-                # Filtro por Tipo de Item
-                tipos_disponiveis = ['Todos'] + sorted(df['Tipo de Item'].unique().tolist())
-                tipos_selecionados = st.multiselect(
-                    "Filtrar por Tipo de Item",
-                    options=tipos_disponiveis,
-                    default=['Todos'],
-                    help="Selecione os tipos de item para filtrar"
+                tipos_selecionados = FilterComponents.tipo_item_filter(
+                    df, key_suffix="dados_detalhados"
                 )
 
             with col_filtro2:
-                # Filtro por Sprint (se múltiplas sprints estão carregadas)
-                if 'Sprint ID' in df.columns:
-                    sprints_disponiveis = ['Todas'] + sorted(df['Sprint ID'].unique().tolist())
-                    sprints_filtro = st.multiselect(
-                        "Filtrar por Sprint",
-                        options=sprints_disponiveis,
-                        default=['Todas'],
-                        help="Selecione as sprints para filtrar"
-                    )
-                else:
-                    sprints_filtro = ['Todas']
+                sprints_filtro = FilterComponents.sprint_filter(
+                    df, key_suffix="dados_detalhados"
+                )
 
-            # Aplicar filtros
-            df_filtrado = df.copy()
-
-            # Filtro por tipo
-            if tipos_selecionados and 'Todos' not in tipos_selecionados:
-                df_filtrado = df_filtrado[df_filtrado['Tipo de Item'].isin(tipos_selecionados)]
-
-            # Filtro por sprint
-            if 'Sprint ID' in df_filtrado.columns and sprints_filtro and 'Todas' not in sprints_filtro:
-                df_filtrado = df_filtrado[df_filtrado['Sprint ID'].isin(sprints_filtro)]
+            # Aplicar filtros usando função centralizada
+            df_filtrado = apply_filters(
+                df, 
+                tipo_filter=tipos_selecionados,
+                sprint_filter=sprints_filtro
+            )
 
             # Calcular "Dias para Resolução" e remover colunas de data originais
             df_filtrado = calc_dias(df_filtrado, 'Data Criação', 'Data Resolução', out_col='Dias para Resolução')
@@ -893,8 +883,14 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
                 if coluna in df_filtrado.columns:
                     df_filtrado = df_filtrado.drop(columns=[coluna])
 
-            # Mostrar estatísticas do filtro
-            st.info(f"📊 Exibindo {len(df_filtrado)} de {len(df)} items ({len(df_filtrado)/len(df)*100:.1f}%)")
+            # Mostrar resumo dos filtros aplicados
+            filters_applied = []
+            if tipos_selecionados and 'Todos' not in tipos_selecionados:
+                filters_applied.append(f"Tipos: {len(tipos_selecionados)}")
+            if sprints_filtro and 'Todas' not in sprints_filtro:
+                filters_applied.append(f"Sprints: {len(sprints_filtro)}")
+            
+            show_filter_summary(len(df), len(df_filtrado), filters_applied)
 
             # Controles de exibição
             st.subheader("⚙️ Configurações de Exibição")
@@ -915,23 +911,19 @@ if 'df' in st.session_state and not st.session_state['df'].empty:
             if tipos_exibicao:
                 df_exib_src = df_exib_src[df_exib_src['Tipo de Item'].isin(tipos_exibicao)]
 
-            # Seleção de colunas (removendo 'Sprint ID' da lista de opções)
+            # Seleção de colunas usando componente reutilizável
             with col_cfg2:
-                colunas_disponiveis = [c for c in df_exib_src.columns.tolist() if c != 'Sprint ID']
-
                 # Definir colunas padrão (principais)
                 colunas_principais = ['Chave', 'Resumo', 'Tipo de Item', 'Status', 'Responsável', 'Dias para Resolução']
-                # Adicionar 'Sprint Nome' quando disponível (sem 'Sprint ID')
-                if 'Sprint Nome' in colunas_disponiveis:
+                # Adicionar 'Sprint Nome' quando disponível
+                if 'Sprint Nome' in df_exib_src.columns:
                     colunas_principais.insert(-1, 'Sprint Nome')  # Antes de 'Dias para Resolução'
 
-                colunas_padrao = [col for col in colunas_principais if col in colunas_disponiveis]
-
-                colunas_selecionadas = st.multiselect(
-                    "Selecione as colunas para exibir",
-                    options=colunas_disponiveis,
-                    default=colunas_padrao,
-                    help="Escolha quais colunas mostrar na tabela"
+                colunas_selecionadas = FilterComponents.column_selector(
+                    df_exib_src,
+                    default_columns=colunas_principais,
+                    key_suffix="dados_detalhados",
+                    exclude_columns=['Sprint ID']  # Excluir Sprint ID da lista
                 )
 
             # Aplicar configurações
