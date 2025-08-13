@@ -5,6 +5,8 @@ python-dotenv
 typer
 cryptography
 pydantic
+streamlit
+plotly
 
 pytest
 pytest-mock

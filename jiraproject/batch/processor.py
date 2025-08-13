@@ -3,8 +3,6 @@ Sistema de processamento em lote para múltiplas sprints.
 """
 
 import pandas as pd
-import asyncio
-import aiohttp
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Dict, Any, Optional, Tuple, Callable
 import time
