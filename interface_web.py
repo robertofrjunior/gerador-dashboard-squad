@@ -25,6 +25,8 @@ from jiraproject.utils.ui import status_color, build_column_config, metric, pct_
 from jiraproject.components import FilterComponents, apply_filters, show_filter_summary
 from jiraproject.charts import ChartFactory
 from jiraproject.metrics import DashboardMetrics
+from jiraproject.cache import smart_cache_data
+from jiraproject.batch import SprintBatchProcessor, create_sprint_tasks
 
 
 # Helpers internos para reduzir duplicação (deprecated - usar utils_calculations)
@@ -35,7 +37,7 @@ def calc_dias(df: pd.DataFrame, created_col: str = 'Data Criação', resolved_co
 def show_df(df: pd.DataFrame, **kwargs) -> None:
     """Exibe DataFrame usando make_display_copy para compatibilidade."""
     st.dataframe(make_display_copy(df), **kwargs)
-@st.cache_data(show_spinner="Buscando sprints do projeto...", ttl=config.CACHE_TTL_SPRINTS)
+@smart_cache_data(key_prefix="sprints_projeto", use_business_hours=True, per_user=True)
 def buscar_sprints_do_projeto_cache(_projeto_validado: str) -> Optional[Dict[str, Any]]:
     """Busca sprints do board com cache para evitar múltiplas chamadas."""
     from jiraproject.services.jira import buscar_board_do_projeto, buscar_sprints_do_board
@@ -140,7 +142,7 @@ def validar_sprints_especificas(_projeto: str, _sprint_ids: List[int]) -> Tuple[
     
     return sprints_validas, sprints_invalidas
 
-@st.cache_data(show_spinner="Carregando projetos do Jira...", ttl=config.CACHE_TTL_PROJETOS)
+@smart_cache_data(key_prefix="projetos_jira", use_business_hours=True, per_user=False)
 def listar_projetos_cache() -> List[Dict[str, str]]:
     """Retorna a lista de projetos do Jira (key e name)."""
     try:
@@ -363,61 +365,68 @@ with st.sidebar:
                 st.session_state.pop('last_loaded_signature', None)
             # Recarregar ao mudar a assinatura efetiva de dados carregados
             if st.session_state.get('last_loaded_signature') != signature:
-                with st.spinner("🔄 Carregando dados da(s) sprint(s)..."):
-                    try:
-                        dfs_sprints: list[pd.DataFrame] = []
-                        sprints_com_erro: list[str] = []
-                        sprints_sem_dados: list[int] = []
-                        sprint_info: list[dict] = []
-                        for sid in sprint_ids_auto:
-                            try:
-                                df_sprint = analisar_sprint(projeto_final, int(sid))
-                                if not df_sprint.empty:
-                                    df_sprint['Sprint ID'] = int(sid)
-                                    df_sprint['Sprint Nome'] = df_sprint.attrs.get('sprint_nome', f'Sprint {sid}')
-                                    dfs_sprints.append(df_sprint)
-                                    sprint_info.append({
-                                        'id': int(sid),
-                                        'nome': df_sprint.attrs.get('sprint_nome', f'Sprint {sid}'),
-                                        'inicio': df_sprint.attrs.get('sprint_inicio'),
-                                        'fim': df_sprint.attrs.get('sprint_fim'),
-                                        'total_itens': len(df_sprint),
-                                    })
-                                else:
-                                    sprints_sem_dados.append(int(sid))
-                            except Exception as e:
-                                sprints_com_erro.append(f"Sprint {sid} ({str(e)[:40]}...)")
-                        if dfs_sprints:
-                            df_combinado = pd.concat(dfs_sprints, ignore_index=True)
-                            st.session_state['df'] = df_combinado
-                            st.session_state['projeto'] = projeto_final
-                            st.session_state['sprints_selecionadas'] = sprint_ids_auto
-                            st.session_state['sprint_info'] = sprint_info
-                            st.session_state['total_sprint'] = len(df_combinado)
-                            st.session_state['sprint_id'] = (
-                                sprint_ids_auto[0] if len(sprint_ids_auto) == 1 else "Múltiplas"
-                            )
-                            st.session_state['sprint_nome'] = (
-                                sprint_info[0]['nome'] if len(sprint_info) == 1 else f"{len(sprint_ids_auto)} Sprints"
-                            )
-                            st.session_state['sprint_inicio'] = sprint_info[0]['inicio'] if len(sprint_info) == 1 else None
-                            st.session_state['sprint_fim'] = sprint_info[0]['fim'] if len(sprint_info) == 1 else None
-                            st.session_state['last_loaded_signature'] = signature
-                            # Atualizar sprint_id/nome exibidos (reflete a escolha atual)
-                            st.session_state['sprint_id'] = (
-                                sprint_ids_auto[0] if len(sprint_ids_auto) == 1 else "Múltiplas"
-                            )
-                            if sprints_com_erro or sprints_sem_dados:
-                                avisos: list[str] = []
-                                if sprints_com_erro:
-                                    avisos.extend(sprints_com_erro)
-                                if sprints_sem_dados:
-                                    avisos.extend([f"Sprint {sid} (sem issues)" for sid in sprints_sem_dados])
-                                st.warning("⚠️ " + ", ".join(avisos))
-                        else:
-                            st.info("Sem dados para a(s) sprint(s) selecionada(s).")
-                    except Exception as e:
-                        st.error(f"❌ Erro ao carregar dados automaticamente: {str(e)}")
+                # Usar processamento em lote para múltiplas sprints
+                if len(sprint_ids_auto) > 1:
+                    with st.spinner(f"🔄 Processando {len(sprint_ids_auto)} sprints em paralelo..."):
+                        # Criar processador em lote
+                        processor = SprintBatchProcessor(max_workers=3)
+                        tasks = create_sprint_tasks(projeto_final, sprint_ids_auto)
+                        
+                        # Processar em lote
+                        batch_result = processor.process_sprints_parallel(tasks)
+                        
+                        if batch_result.successful_sprints:
+                            df_combinado = processor.combine_sprint_data(batch_result)
+                            sprint_info = df_combinado.attrs.get('sprint_info', [])
+                            
+                            # Mostrar resumo do processamento
+                            summary = processor.get_batch_summary(batch_result)
+                            if batch_result.failed_sprints:
+                                failed_ids = [str(sid) for sid, _ in batch_result.failed_sprints]
+                                st.info(f"⚡ {summary['successful_sprints']} sprints processadas em {summary['processing_time']}s | Falhas: {', '.join(failed_ids)}")
+                            else:
+                                st.success(f"⚡ {summary['successful_sprints']} sprints processadas em {summary['processing_time']}s")
+                else:
+                    # Processamento single para uma sprint apenas
+                    with st.spinner("🔄 Carregando dados da sprint..."):
+                        try:
+                            df_sprint = analisar_sprint(projeto_final, int(sprint_ids_auto[0]))
+                            if not df_sprint.empty:
+                                df_combinado = df_sprint.copy()
+                                df_combinado['Sprint ID'] = int(sprint_ids_auto[0])
+                                df_combinado['Sprint Nome'] = df_sprint.attrs.get('sprint_nome', f'Sprint {sprint_ids_auto[0]}')
+                                sprint_info = [{
+                                    'id': int(sprint_ids_auto[0]),
+                                    'nome': df_sprint.attrs.get('sprint_nome', f'Sprint {sprint_ids_auto[0]}'),
+                                    'inicio': df_sprint.attrs.get('sprint_inicio'),
+                                    'fim': df_sprint.attrs.get('sprint_fim'),
+                                    'total_itens': len(df_sprint),
+                                }]
+                            else:
+                                df_combinado = None
+                                sprint_info = []
+                        except Exception as e:
+                            st.error(f"❌ Erro ao carregar sprint: {str(e)}")
+                            df_combinado = None
+                            sprint_info = []
+                
+                if df_combinado is not None and not df_combinado.empty:
+                    st.session_state['df'] = df_combinado
+                    st.session_state['projeto'] = projeto_final
+                    st.session_state['sprints_selecionadas'] = sprint_ids_auto
+                    st.session_state['sprint_info'] = sprint_info
+                    st.session_state['total_sprint'] = len(df_combinado)
+                    st.session_state['sprint_id'] = (
+                        sprint_ids_auto[0] if len(sprint_ids_auto) == 1 else "Múltiplas"
+                    )
+                    st.session_state['sprint_nome'] = (
+                        sprint_info[0]['nome'] if len(sprint_info) == 1 else f"{len(sprint_ids_auto)} Sprints"
+                    )
+                    st.session_state['sprint_inicio'] = sprint_info[0]['inicio'] if len(sprint_info) == 1 else None
+                    st.session_state['sprint_fim'] = sprint_info[0]['fim'] if len(sprint_info) == 1 else None
+                    st.session_state['last_loaded_signature'] = signature
+                else:
+                    st.info("Sem dados para a(s) sprint(s) selecionada(s).")
     
 
 # Título principal e subtítulo (resiliente a mudanças/seleções)
