@@ -3,11 +3,12 @@ pandas
 matplotlib
 python-dotenv
 typer
+cryptography
+pydantic
+streamlit
+plotly
 
 pytest
 pytest-mock
 requests-mock
-<<<<<<< HEAD
 pytest-cov
-=======
->>>>>>> origin/main
